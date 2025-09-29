@@ -1,5 +1,6 @@
 from __future__ import annotations
-from domain.pricing import PricingStrategy, NoDiscount, PercentageDiscount, BulkItemDiscount, CompositeStrategy
+from domain.pricing import PricingStrategy, NoDiscount, PercentageDiscount, BulkItemDiscount, CompositeStrategy, BuyOneGetOneFree
+
 
 
 def choose_strategy(kind: str, **kwargs) -> PricingStrategy:
@@ -23,4 +24,9 @@ def choose_strategy(kind: str, **kwargs) -> PricingStrategy:
             per_item_off=float(kwargs.get("per_item_off", 0.0)),
         )
         return CompositeStrategy([percent, bulk])
+    if kind == "bogo":
+        return BuyOneGetOneFree(
+            sku=kwargs.get("sku", ""),
+        )
+
     raise ValueError(f"Unknown strategy kind: {kind}")

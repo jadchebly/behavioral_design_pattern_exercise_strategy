@@ -59,5 +59,31 @@ class CompositeStrategy(PricingStrategy):
         return round(total, 2)
 
 
+class BuyOneGetOneFree(PricingStrategy):
+    """
+    Buy 1, get 1 free for a specific SKU.
+    For every 2 items purchased, 1 is free (i.e., 50% of items are free, floored).
+    """
+    def __init__(self, sku: str) -> None:
+        self.sku = sku
+
+    def apply(self, subtotal: float, items: list[LineItem]) -> float:
+        qty = 0
+        unit_price = None
+        for it in items:
+            if it.sku == self.sku:
+                qty += it.qty
+                unit_price = it.unit_price
+
+        if unit_price is None or qty <= 1:
+            return round(subtotal, 2)
+
+        # Every pair => 1 free
+        free_units = qty // 2
+        discount = free_units * unit_price
+        total = max(0.0, subtotal - discount)
+        return round(total, 2)
+
+
 def compute_subtotal(items: list[LineItem]) -> float:
     return round(sum(it.unit_price * it.qty for it in items), 2)
